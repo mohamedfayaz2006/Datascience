@@ -1,0 +1,164 @@
+
+======================================================================
+TASK 1: DATA PREPROCESSING
+======================================================================
+Raw shape: (20600, 13)
+  Customer_ID  Gender  Age Membership   Device  Visits_Per_Month  Time_On_Site  Pages_Viewed  Cart_Items  Previous_Purchase_Amount  Discount_Percent  Review_Rating  Purchase_Amount
+0      C05632  Female   35    Premium   Tablet              14.0          19.2          16.0         4.0                   2139.71                 0              1          4076.80
+1      C16898    Male   38    Regular   Mobile               2.0          27.8          21.0         4.0                    768.04                25              2          3535.47
+2      C05437    Male   32    Regular  Desktop              10.0          21.7          19.0         3.0                   4246.52                24              1          3878.52
+3      C07354     NaN   41    Regular   Mobile               9.0          16.3           3.0         1.0                   2554.69                15              3          2597.71
+4      C14785    Male   48    Regular   Mobile               9.0          17.8          18.0         5.0                   3739.19                18              2          4154.85
+
+Missing values:
+ Gender                      515
+Time_On_Site                516
+Pages_Viewed                520
+Previous_Purchase_Amount    512
+Duplicate rows: 600
+Clean shape: (20000, 13) | missing left: 0
+Numerical: ['Age', 'Visits_Per_Month', 'Time_On_Site', 'Pages_Viewed', 'Cart_Items', 'Previous_Purchase_Amount', 'Discount_Percent', 'Review_Rating', 'Purchase_Amount']
+Categorical: ['Gender', 'Membership', 'Device']
+
+======================================================================
+TASK 2: DESCRIPTIVE AND INFERENTIAL STATISTICS
+======================================================================
+                             Mean   Median     Mode   Variance  Std_Dev
+Age                         41.58    42.00    20.00     193.17    13.90
+Visits_Per_Month            10.92    11.00    12.00      17.98     4.24
+Time_On_Site                18.49    18.40    18.40      41.77     6.46
+Pages_Viewed                12.96    13.00    13.00      29.27     5.41
+Cart_Items                   2.95     3.00     3.00       2.14     1.46
+Previous_Purchase_Amount  2712.20  2713.26  2713.26  729104.65   853.88
+Discount_Percent            20.00    20.00     4.00     141.96    11.91
+Review_Rating                2.99     3.00     1.00       2.02     1.42
+Purchase_Amount           3378.90  3367.47  2782.65  809848.63   899.92
+
+Purchase amount: skewness=0.094, kurtosis=-0.106
+
+Sampling comparison:
+  Population     n=20000 mean=3378.90
+  Simple random  n= 4000 mean=3362.37
+  Systematic     n= 4000 mean=3402.90
+  Stratified     n= 4000 mean=3392.23
+
+Welch t-test | H0: Premium and Regular mean spending are equal | H1: they differ
+  Premium mean=3855.31, Regular mean=3169.59
+  t=53.105, p=0, Cohen's d=0.814 -> Reject H0
+
+======================================================================
+TASK 3: PROBABILITY ANALYSIS
+======================================================================
+'High spender' = purchase above 4000; 'engaged' = more than 20 minutes on site
+P(High) = 0.2420
+P(High | Engaged) = 0.4598   P(High | Not engaged) = 0.1014
+
+Bayes: probability that a high spender is a Premium member
+  P(Premium)=0.3053, P(High|Premium)=0.4239, P(High|Regular)=0.1621, P(High)=0.2420
+  P(Premium|High) = 0.5347   (direct count check: 0.5347)
+
+Law of large numbers (random draws with replacement):
+  n=   10  observed=0.3000  true=0.2420
+  n=  100  observed=0.2000  true=0.2420
+  n= 1000  observed=0.2470  true=0.2420
+  n=10000  observed=0.2379  true=0.2420
+
+======================================================================
+TASK 4: CORRELATION ANALYSIS
+======================================================================
+                          Pearson  Spearman
+Cart_Items                  0.727     0.713
+Pages_Viewed                0.647     0.631
+Time_On_Site                0.645     0.631
+Visits_Per_Month            0.473     0.457
+Previous_Purchase_Amount    0.414     0.401
+Discount_Percent           -0.005    -0.005
+Review_Rating              -0.004    -0.004
+Age                         0.002     0.001
+Strongest factors: Cart_Items, Pages_Viewed, Time_On_Site
+
+======================================================================
+TASK 5: REGRESSION ANALYSIS
+======================================================================
+Simple regression: intercept=1707.089
+    Time_On_Site               90.1117
+    test R2=0.4007 | 5-fold CV R2=0.4190 +/- 0.0114
+Multiple regression: intercept=107.542
+    Time_On_Site               32.6842
+    Visits_Per_Month           45.2665
+    Pages_Viewed               14.0873
+    Cart_Items                 322.3887
+    Previous_Purchase_Amount   0.3816
+    test R2=0.8311 | 5-fold CV R2=0.8405 +/- 0.0022
+
+======================================================================
+TASK 6: LINEAR ALGEBRA WITH NUMPY
+======================================================================
+Customer vector 1: [  24.3   17.    20.     3.  1333.8]
+Customer vector 2: [  10.3    14.     11.      4.   2479.06]
+Data matrix shape: (16000, 5)
+Matrix addition (first 2 rows + next 2 rows):
+ [[  46.8    31.     38.      8.   3716.03]
+ [  25.4    30.     24.      9.   6405.68]]
+Dot product v1.v2 = 3307290.52
+Matrix multiplication X(3x5) @ X^T(5x3):
+ [[1780310.9 3307290.5 3178578.1]
+ [3307290.5 6146177.6 5906336.9]
+ [3178578.1 5906336.9 5676071. ]]
+
+Normal equation  theta = (X^T X)^-1 X^T y
+  NumPy  : [107.5417  32.6842  45.2665  14.0873 322.3887   0.3816]
+  sklearn: [107.5417  32.6842  45.2665  14.0873 322.3887   0.3816]
+  First prediction as dot product: 3429.15
+
+======================================================================
+TASK 7: CALCULUS AND GRADIENT DESCENT
+======================================================================
+Cost      J(theta) = (1/2m) * sum((X.theta - y)^2)
+Gradient  dJ/dtheta = (1/m) * X^T (X.theta - y)
+Update    theta = theta - alpha * gradient
+iter    0  cost=    6103574.26  theta=[0. 0. 0. 0. 0. 0.]
+iter    1  cost=    5480155.95  theta=[168.76  29.24  21.33  29.31  32.97  18.84]
+iter   10  cost=    2158283.10  theta=[1354.38  164.86  128.92  163.17  216.84  142.55]
+iter   50  cost=     100869.91  theta=[3115.57  186.59  185.44  159.89  404.52  304.39]
+iter  100  cost=      65397.12  theta=[3355.3   182.33  191.08  121.86  452.6   324.58]
+iter  500  cost=      64852.22  theta=[3375.28  210.89  191.96   77.56  472.4   325.6 ]
+iter 1000  cost=      64851.95  theta=[3375.28  212.08  191.85   76.29  472.61  325.59]
+GD parameters (original units): [107.5483  32.6817  45.2668  14.0906 322.3868   0.3816]
+Max difference from normal equation: 6.58e-03
+
+======================================================================
+TASK 8: MODEL EVALUATION AND RESIDUAL ANALYSIS
+======================================================================
+                       MAE          MSE      RMSE      R2
+Simple            549.2525  473666.6324  688.2344  0.4007
+Multiple          293.6465  133472.7464  365.3392  0.8311
+Gradient descent  293.6465  133472.6887  365.3391  0.8311
+
+Actual vs predicted (first 10):
+ Customer_ID  Actual  Predicted  Residual         Status
+     C11025 3084.09    2993.99     90.10 Underestimated
+     C18598 1846.51    1429.23    417.28 Underestimated
+     C11087 3373.36    3357.18     16.18 Underestimated
+     C13382 3703.86    3265.79    438.07 Underestimated
+     C07506 3804.92    3583.94    220.98 Underestimated
+     C13337 3499.04    3535.34    -36.30  Overestimated
+     C13139 2866.63    2707.84    158.79 Underestimated
+     C02226 3141.32    2433.62    707.70 Underestimated
+     C18640 1884.54    1865.80     18.74 Underestimated
+     C18965 3254.33    3339.89    -85.56  Overestimated
+
+Residual = Actual - Predicted (negative means overestimate)
+Mean residual = 18.23
+Status
+Underestimated    2117
+Overestimated     1883
+
+Mean residual by actual spending band:
+ Actual
+Low      -147.57
+Medium     13.68
+High      188.70
+Shapiro-Wilk p-value for residuals = 0.0188
+
+DONE. Files: CSVs in this folder, charts in plots/
